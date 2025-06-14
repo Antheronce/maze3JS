@@ -6,7 +6,7 @@ export class Player {
 
     this.isGamePaused = false;
     this.isRunning = false;
-    this.runningSpeed = 0.40; // just for testing 
+    this.runningSpeed = 0.4; // just for testing 
     this.walkingSpeed = 0.1;
     this.moveSpeed = this.walkingSpeed;
 

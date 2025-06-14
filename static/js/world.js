@@ -40,39 +40,51 @@ function MazeAlgo(width, height) { // recursive backtracking algo
 
 
 export class World {
-  constructor() {
+  constructor(width, height) {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x87CEEB); // basic blue sky background
+    this.scene.background = new THREE.Color(0x2e4482); // basic blue sky background
 
-    this.wallMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: false});
     this.size = 5;
-    this.wallHeight = 3;
+    this.wallHeight = 5;
     this.wallThickness = 0.5;
+
+    this.mazeHeight = height;
+    this.mazeWidth = width;
 
     // methods call 
 
     this.createGround();
-    this.createMaze(this.size, this.wallHeight, this.wallThickness);
+    this.createLight(); // true / false arg for visual representation
+    this.createMaze(this.mazeWidth, this.mazeHeight, this.size, this.wallHeight, this.wallThickness);
   }
 
 
   // setup maze generation
 
 
-  createWall(x, z, width, depth, height) {
+  createWall(x, z, width, depth, height, wallTexture) { // texture looks like ass
     const wall = new THREE.Mesh(
       new THREE.BoxGeometry(width, height, depth),
-      this.wallMaterial
+      new THREE.MeshStandardMaterial({ map: wallTexture})
     );
+
     wall.position.set(x, height / 2, z);
+    wall.castShadow = true;
+    wall.receiveShadow = true;
     this.scene.add(wall);
   }
 
-  createMaze(s, height, thickness) {
-    const maze = MazeAlgo(10, 10);
-    const size = s;
-    const wallHeight = height;
-    const wallThickness = thickness;
+  createMaze(mazeWidth, mazeHeight,size, wallHeight,wallThickness ) { 
+    const maze = MazeAlgo(mazeWidth, mazeHeight);
+
+    maze[0][0].walls[3] = false; 
+    maze[maze.length - 1][maze[0].length - 1].walls[1] = false;
+
+    const wallTexture = new THREE.TextureLoader().load("static/assets/wall.jpg");
+    wallTexture.wrapS = THREE.RepeatWrapping;
+    wallTexture.wrapT = THREE.RepeatWrapping;
+    wallTexture.repeat.set(3,3);  // repeated to avoid stretching
+
 
     for (let y = 0; y < maze.length; y++) {
       for (let x = 0; x < maze[0].length; x++) {
@@ -81,22 +93,20 @@ export class World {
         const cz = y * size - (maze.length * size) / 2;
 
         if (cell.walls[0]) {
-          this.createWall(cx, cz - size / 2, size, wallThickness, wallHeight); // top
+          this.createWall(cx, cz - size / 2, size, wallThickness, wallHeight,wallTexture); // top
         }
         if (cell.walls[1]) {
-          this.createWall(cx + size / 2, cz, wallThickness, size, wallHeight); // right
+          this.createWall(cx + size / 2, cz, wallThickness, size, wallHeight,wallTexture); // right
         }
         if (cell.walls[2]) {
-          this.createWall(cx, cz + size / 2, size, wallThickness, wallHeight); // bottom
+          this.createWall(cx, cz + size / 2, size, wallThickness, wallHeight,wallTexture); // bottom
         }
         if (cell.walls[3]) {
-          this.createWall(cx - size / 2, cz, wallThickness, size, wallHeight); // left
+          this.createWall(cx - size / 2, cz, wallThickness, size, wallHeight,wallTexture); // left
         }
       }
     }
 
-    maze[0][0].walls[3] = false; 
-    maze[maze.length - 1][maze[0].length - 1].walls[1] = false;
   }
 
 
@@ -104,13 +114,45 @@ export class World {
 
   // setup test world gen func
   createGround() {
+    const groundTexture = new THREE.TextureLoader().load("static/assets/ground.jpg");
+    groundTexture.wrapS = THREE.RepeatWrapping;
+    groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(50,50);  // repeated to avoid stretching
+
+
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(100, 100),
-      new THREE.MeshBasicMaterial({ color: 0x00aa00})
+      new THREE.MeshStandardMaterial({ map: groundTexture})
     );
     ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
     this.scene.add(ground);
-    this.scene.add(new THREE.GridHelper(100, 100));
+    // this.scene.add(new THREE.GridHelper(100, 100));
+  }
+
+  createLight(lightHelper = false ){
+    const ambientLight = new THREE.AmbientLight(0xffffff,0.4);
+    this.scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // bruuuuh
+    directionalLight.position.set(10,20,10);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.camera.far = 100;
+    directionalLight.shadow.camera.left = -50;
+    directionalLight.shadow.camera.right = 50;
+    directionalLight.shadow.camera.top = 50;
+    directionalLight.shadow.camera.bottom = -50;
+
+    this.scene.add(directionalLight);
+
+    if (lightHelper){
+    const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
+    this.scene.add(helper);
+    }
+
   }
 
 
