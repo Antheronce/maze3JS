@@ -39,12 +39,12 @@ function MazeAlgo(width, height) { // recursive backtracking algo
 }
 
 
-export class World {
+export class World { // ultimately moving more values as constructor's argument to easily change through main (like lightHelper, groundSize, so on so forth)
   constructor(width, height) {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x2e4482); // basic blue sky background
+    this.scene.background = new THREE.Color(0x2e4482); // more night sky colored
 
-    this.size = 5;
+    this.size = 5; // 15 gives backroom vibe
     this.wallHeight = 5;
     this.wallThickness = 0.5;
 
@@ -53,8 +53,8 @@ export class World {
 
     // methods call 
 
-    this.createGround();
-    this.createLight(); // true / false arg for visual representation
+    this.createGround(150); // size of the plane
+    this.createLight(); // true / false arg for helper
     this.createMaze(this.mazeWidth, this.mazeHeight, this.size, this.wallHeight, this.wallThickness);
   }
 
@@ -62,7 +62,7 @@ export class World {
   // setup maze generation
 
 
-  createWall(x, z, width, depth, height, wallTexture) { // texture looks like ass
+  createWall(x, z, width, depth, height, wallTexture) { // texture looks like ass 
     const wall = new THREE.Mesh(
       new THREE.BoxGeometry(width, height, depth),
       new THREE.MeshStandardMaterial({ map: wallTexture})
@@ -77,10 +77,10 @@ export class World {
   createMaze(mazeWidth, mazeHeight,size, wallHeight,wallThickness ) { 
     const maze = MazeAlgo(mazeWidth, mazeHeight);
 
-    maze[0][0].walls[3] = false; 
-    maze[maze.length - 1][maze[0].length - 1].walls[1] = false;
+    // maze[0][0].walls[3] = false; // entrance 
+    maze[maze.length - 1][maze[0].length - 1].walls[1] = false; // exit
 
-    const wallTexture = new THREE.TextureLoader().load("static/assets/wall.jpg");
+    const wallTexture = new THREE.TextureLoader().load("public/assets/wall.jpg");
     wallTexture.wrapS = THREE.RepeatWrapping;
     wallTexture.wrapT = THREE.RepeatWrapping;
     wallTexture.repeat.set(3,3);  // repeated to avoid stretching
@@ -109,19 +109,17 @@ export class World {
 
   }
 
-
-
-
   // setup test world gen func
-  createGround() {
-    const groundTexture = new THREE.TextureLoader().load("static/assets/ground.jpg");
+
+  createGround(planeSize = 100 ) {
+    const groundTexture = new THREE.TextureLoader().load("public/assets/ground.jpg");
     groundTexture.wrapS = THREE.RepeatWrapping;
     groundTexture.wrapT = THREE.RepeatWrapping;
     groundTexture.repeat.set(50,50);  // repeated to avoid stretching
 
 
     const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(100, 100),
+      new THREE.PlaneGeometry(planeSize, planeSize),
       new THREE.MeshStandardMaterial({ map: groundTexture})
     );
     ground.rotation.x = -Math.PI / 2;
