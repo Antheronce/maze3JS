@@ -6,45 +6,60 @@ import { Sky } from "three/examples/jsm/objects/Sky.js";
 export class SkySystem{
     constructor(scene){
         this.scene = scene;   
-        this.skyPalette = {
-            sunset: { color: 0xFF7F50, lightIntensity: 0.8, lightPosition: new THREE.Vector3(0, 1, 0) },
-            bloodmoon: { color: 0x8B0000, lightIntensity: 0.5, lightPosition: new THREE.Vector3(0, -0.5, 0) },
-            eldenGold: { color: 0xF0E68C, lightIntensity: 1.2, lightPosition: new THREE.Vector3(0.5, 0.8, -0.3) },
-            abyssal: { color: 0x191970, lightIntensity: 0.3, lightPosition: new THREE.Vector3(0, 0.2, -1)}
-        };
 
-       
-
-        this.createSky(this.skyPalette.sunset); // takes chosen palette var and init sky
-        this.createLight(true); // true / false arg for helper
+        this.createLight(); // true / false arg for helper
+        this.createSky(); 
     }
 
-
-    createSky(Palette){
-        this.sky = new Sky();
-        this.sky.scale.setScalar(45000);
-    
-
-      // idk will do later, deleted previous stuff
-
-
-        this.scene.add(this.sky);
-        // rest of the code where I use the data from skyPalette (sunset currently) and do the animations
-    }   
-
-    createLight(lightHelper = false ){
-        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    createLight(lightHelper = false){
+        this.ambientLight = new THREE.AmbientLight(0x4040a0, 0.2);
         this.scene.add(this.ambientLight);
     
-        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        this.directionalLight.position.set(0,1,0);
+        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        this.directionalLight.castShadow = true;
+        this.directionalLight.shadow.mapSize.set(4096, 4096);
+        this.directionalLight.shadow.normalBias = 0.05;
+        this.directionalLight.shadow.camera.near = 0.5;
+        this.directionalLight.shadow.camera.far = 500;
+        this.directionalLight.shadow.camera.left = -100;
+        this.directionalLight.shadow.camera.right = 100;
+        this.directionalLight.shadow.camera.top = 100;
+        this.directionalLight.shadow.camera.bottom = -100;
         this.scene.add(this.directionalLight);
-    
+
+        this.hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.2);
+        this.scene.add(this.hemisphereLight);
+
+
         if (lightHelper){
-        const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
+        const helper = new THREE.CameraHelper(this.directionalLight.shadow.camera);
         this.scene.add(helper);
         }
       }
+
+    createSky(){
+        this.sky = new Sky();
+        this.sky.scale.setScalar(45000);
+        this.scene.add(this.sky);
+ 
+        // daytime style sky
+        const skyUniforms = this.sky.material.uniforms; // doesn't really look good, Idk 
+        skyUniforms['turbidity'].value = 5;       
+        skyUniforms['rayleigh'].value = 1;       
+        skyUniforms['mieCoefficient'].value = 0.005;
+        skyUniforms['mieDirectionalG'].value = 0.8;
+
+        // sun position and lightning direction
+        const sun = new THREE.Vector3();
+        const theta = THREE.MathUtils.degToRad(90 - 30);  // altitude
+        const phi = THREE.MathUtils.degToRad(180);        // azimuth
+
+        sun.setFromSphericalCoords(1, theta, phi);
+        skyUniforms['sunPosition'].value.copy(sun);
+
+        this.directionalLight.position.copy(sun.clone().multiplyScalar(100));
+        this.sun = sun;
+    }   
 
 
 }

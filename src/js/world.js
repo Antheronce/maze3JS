@@ -1,49 +1,12 @@
 import * as THREE from "three";
-// import { createSky } from './coolsky.js';
+import { SkySystem } from './coolsky.js';
 
-function MazeAlgo(width, height) { // recursive backtracking algo
-  const maze = Array.from({ length: height }, () =>
-    Array.from({ length: width }, () => ({ visited: false, walls: [true, true, true, true] }))
-  );
-
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  function carve(x, y) {
-    const directions = shuffle([
-      [0, -1, 0], // top
-      [1, 0, 1],  // right
-      [0, 1, 2],  // bottom
-      [-1, 0, 3], // left
-    ]);
-
-    maze[y][x].visited = true;
-
-    for (const [dx, dy, dir] of directions) {
-      const nx = x + dx;
-      const ny = y + dy;
-      if (ny >= 0 && ny < height && nx >= 0 && nx < width && !maze[ny][nx].visited) {
-        maze[y][x].walls[dir] = false;
-        maze[ny][nx].walls[(dir + 2) % 4] = false;
-        carve(nx, ny);
-      }
-    }
-  }
-
-  carve(0, 0);
-  return maze;
-}
 
 
 export class World { // ultimately moving more values as constructor's argument to easily change through main (like lightHelper, groundSize, so on so forth)
   constructor(width, height) {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x2e4482); // more night sky colored
+    // this.scene.background = new THREE.Color(0x2e4482); // more night sky colored
 
     this.size = 5; // 15 gives backroom vibe
     this.wallHeight = 5;
@@ -54,9 +17,11 @@ export class World { // ultimately moving more values as constructor's argument 
 
     // methods call 
 
+
     this.createGround(150); // size of the plane
     // coolsky called here
-    this.createLight(); // true / false arg for helper
+    this.SkySystem = new SkySystem(this.scene);
+
     this.createMaze(this.mazeWidth, this.mazeHeight, this.size, this.wallHeight, this.wallThickness);
   }
 
@@ -130,30 +95,44 @@ export class World { // ultimately moving more values as constructor's argument 
     // this.scene.add(new THREE.GridHelper(100, 100));
   }
 
-  createLight(lightHelper = false ){
-    this.ambientLight = new THREE.AmbientLight(0xffffff,0.4);
-    this.scene.add(this.ambientLight);
 
-    this.directionalLight = new THREE.DirectionalLight(0xffffff, 1); // bruuuuh
-    this.directionalLight.position.set(10,20,10);
-    this.directionalLight.castShadow = true;
-    this.directionalLight.shadow.mapSize.width = 2048;
-    this.directionalLight.shadow.mapSize.height = 2048;
-    this.directionalLight.shadow.camera.near = 0.5;
-    this.directionalLight.shadow.camera.far = 100;
-    this.directionalLight.shadow.camera.left = -50;
-    this.directionalLight.shadow.camera.right = 50;
-    this.directionalLight.shadow.camera.top = 50;
-    this.directionalLight.shadow.camera.bottom = -50;
+}
 
-    this.scene.add(this.directionalLight);
 
-    if (lightHelper){
-      this.helper = new THREE.CameraHelper(this.directionalLight.shadow.camera);
-      this.scene.add(this.helper);
+function MazeAlgo(width, height) { // recursive backtracking algo
+  const maze = Array.from({ length: height }, () =>
+    Array.from({ length: width }, () => ({ visited: false, walls: [true, true, true, true] }))
+  );
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-
+    return arr;
   }
 
+  function carve(x, y) {
+    const directions = shuffle([
+      [0, -1, 0], // top
+      [1, 0, 1],  // right
+      [0, 1, 2],  // bottom
+      [-1, 0, 3], // left
+    ]);
 
+    maze[y][x].visited = true;
+
+    for (const [dx, dy, dir] of directions) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (ny >= 0 && ny < height && nx >= 0 && nx < width && !maze[ny][nx].visited) {
+        maze[y][x].walls[dir] = false;
+        maze[ny][nx].walls[(dir + 2) % 4] = false;
+        carve(nx, ny);
+      }
+    }
+  }
+
+  carve(0, 0);
+  return maze;
 }
