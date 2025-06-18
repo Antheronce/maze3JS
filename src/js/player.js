@@ -59,6 +59,7 @@ export class Player {
 
 
   // setup player func
+
   updateMovement() { 
     if (!this.isGamePaused) {
       if (this.keys.z) this.controls.moveForward(this.moveSpeed);
@@ -67,6 +68,9 @@ export class Player {
       if (this.keys.d) this.controls.moveRight(this.moveSpeed);
     }
   }
+
+
+  
 
   
 }

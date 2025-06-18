@@ -8,6 +8,7 @@ export default defineConfig({
     topLevelAwait()
   ],
   optimizeDeps: {
-    exclude: ['@dimforge/rapier3d']
+    exclude: ['@dimforge/rapier3d'],
+    include: ['gsap']
   }
 });

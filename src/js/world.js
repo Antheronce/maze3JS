@@ -1,4 +1,5 @@
 import * as THREE from "three";
+// import { createSky } from './coolsky.js';
 
 function MazeAlgo(width, height) { // recursive backtracking algo
   const maze = Array.from({ length: height }, () =>
@@ -54,6 +55,7 @@ export class World { // ultimately moving more values as constructor's argument 
     // methods call 
 
     this.createGround(150); // size of the plane
+    // coolsky called here
     this.createLight(); // true / false arg for helper
     this.createMaze(this.mazeWidth, this.mazeHeight, this.size, this.wallHeight, this.wallThickness);
   }
@@ -129,26 +131,26 @@ export class World { // ultimately moving more values as constructor's argument 
   }
 
   createLight(lightHelper = false ){
-    const ambientLight = new THREE.AmbientLight(0xffffff,0.4);
-    this.scene.add(ambientLight);
+    this.ambientLight = new THREE.AmbientLight(0xffffff,0.4);
+    this.scene.add(this.ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // bruuuuh
-    directionalLight.position.set(10,20,10);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 100;
-    directionalLight.shadow.camera.left = -50;
-    directionalLight.shadow.camera.right = 50;
-    directionalLight.shadow.camera.top = 50;
-    directionalLight.shadow.camera.bottom = -50;
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 1); // bruuuuh
+    this.directionalLight.position.set(10,20,10);
+    this.directionalLight.castShadow = true;
+    this.directionalLight.shadow.mapSize.width = 2048;
+    this.directionalLight.shadow.mapSize.height = 2048;
+    this.directionalLight.shadow.camera.near = 0.5;
+    this.directionalLight.shadow.camera.far = 100;
+    this.directionalLight.shadow.camera.left = -50;
+    this.directionalLight.shadow.camera.right = 50;
+    this.directionalLight.shadow.camera.top = 50;
+    this.directionalLight.shadow.camera.bottom = -50;
 
-    this.scene.add(directionalLight);
+    this.scene.add(this.directionalLight);
 
     if (lightHelper){
-    const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
-    this.scene.add(helper);
+      this.helper = new THREE.CameraHelper(this.directionalLight.shadow.camera);
+      this.scene.add(this.helper);
     }
 
   }

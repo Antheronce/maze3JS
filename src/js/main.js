@@ -1,13 +1,11 @@
 import * as THREE from "three";
-import { initPhysics } from "./physics.js";
 import { createRenderer } from "./renderer.js";
 import { World } from './world.js';
 import { Player } from './player.js';
 
 async function init() {
     // Loading these before starting everything else, making it quicker + a loading screen instead of the boring black screen
-    const [physicWorld, renderer] = await Promise.all([
-        initPhysics(),
+    const [renderer] = await Promise.all([
         createRenderer()
     ]);
 
