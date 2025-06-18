@@ -2,16 +2,16 @@ import * as THREE from "three";
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
 export class Player {
-  constructor(camera, renderer) {
+  constructor(deps) { // dependency injection in case I need lot more stuff
 
     this.isGamePaused = false;
     this.isRunning = false;
-    this.runningSpeed = 0.4; // just for testing 
+    this.runningSpeed = 0.4; // quick speed for testing atm, might add actual running with acceleration decceleration later
     this.walkingSpeed = 0.1;
     this.moveSpeed = this.walkingSpeed;
 
     this.keys = {}; // stores zqsd keys for movement and other further action keys
-    this.controls = new PointerLockControls(camera, renderer.domElement); 
+    this.controls = new PointerLockControls(deps.camera, deps.renderer.domElement); 
   
     
     // setup event listeners
@@ -25,7 +25,7 @@ export class Player {
       document.getElementById('overlay-paused').classList.add('visible');
     });
 
-    document.addEventListener('keydown', (e) => { 
+    document.addEventListener('keydown', (e) => { // for pause menu and running 
       const key = e.key.toLowerCase();
       this.keys[key] = true;
 
@@ -33,13 +33,13 @@ export class Player {
         this.controls.unlock();
       }
 
-      if (key == 'shift') { // if shift is pressed, changes speed to running
+      if (key == 'shift') { 
         this.moveSpeed = this.runningSpeed;
         this.isRunning = true;
       }
     });
 
-    document.addEventListener('keyup', (e) => { 
+    document.addEventListener('keyup', (e) => { // to reinstate normal speed and stop movement 
       const key = e.key.toLowerCase();
       this.keys[key] = false;
 

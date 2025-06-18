@@ -80,7 +80,7 @@ export class World { // ultimately moving more values as constructor's argument 
     // maze[0][0].walls[3] = false; // entrance 
     maze[maze.length - 1][maze[0].length - 1].walls[1] = false; // exit
 
-    const wallTexture = new THREE.TextureLoader().load("public/assets/wall.jpg");
+    const wallTexture = new THREE.TextureLoader().load("assets/wall.jpg");
     wallTexture.wrapS = THREE.RepeatWrapping;
     wallTexture.wrapT = THREE.RepeatWrapping;
     wallTexture.repeat.set(3,3);  // repeated to avoid stretching
@@ -112,7 +112,7 @@ export class World { // ultimately moving more values as constructor's argument 
   // setup test world gen func
 
   createGround(planeSize = 100 ) {
-    const groundTexture = new THREE.TextureLoader().load("public/assets/ground.jpg");
+    const groundTexture = new THREE.TextureLoader().load("assets/ground.jpg");
     groundTexture.wrapS = THREE.RepeatWrapping;
     groundTexture.wrapT = THREE.RepeatWrapping;
     groundTexture.repeat.set(50,50);  // repeated to avoid stretching
