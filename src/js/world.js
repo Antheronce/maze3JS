@@ -2,9 +2,8 @@ import * as THREE from "three";
 import { SkySystem } from './coolsky.js';
 
 
-
 export class World { // ultimately moving more values as constructor's argument to easily change through main (like lightHelper, groundSize, so on so forth)
-  constructor(width, height) {
+  constructor(deps) {
     this.scene = new THREE.Scene();
     // this.scene.background = new THREE.Color(0x2e4482); // more night sky colored
 
@@ -12,16 +11,14 @@ export class World { // ultimately moving more values as constructor's argument 
     this.wallHeight = 5;
     this.wallThickness = 0.5;
 
-    this.mazeHeight = height;
-    this.mazeWidth = width;
+    this.mazeHeight = deps.height;
+    this.mazeWidth = deps.width;
 
     // methods call 
 
-
+    this.physics = deps.physics; // 
     this.createGround(150); // size of the plane
-    // coolsky called here
-    this.SkySystem = new SkySystem(this.scene);
-
+    this.SkySystem = new SkySystem(this.scene); // setups the whole sky system with clouds fogs sun (or not, didnt do it yet)
     this.createMaze(this.mazeWidth, this.mazeHeight, this.size, this.wallHeight, this.wallThickness);
   }
 
@@ -39,6 +36,8 @@ export class World { // ultimately moving more values as constructor's argument 
     wall.castShadow = true;
     wall.receiveShadow = true;
     this.scene.add(wall);
+
+    this.physics.createWorldPhysics(x, height/2, z, width,height,depth); // init wall collider
   }
 
   createMaze(mazeWidth, mazeHeight,size, wallHeight,wallThickness ) { 
@@ -92,6 +91,8 @@ export class World { // ultimately moving more values as constructor's argument 
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     this.scene.add(ground);
+
+    this.physics.createWorldPhysics(0,0,0, planeSize, 0.1, planeSize); // adds ground collider
     // this.scene.add(new THREE.GridHelper(100, 100));
   }
 

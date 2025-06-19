@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
+
 export class Player {
   constructor(deps) { // dependency injection in case I need lot more stuff
 
@@ -12,8 +13,10 @@ export class Player {
 
     this.keys = {}; // stores zqsd keys for movement and other further action keys
     this.controls = new PointerLockControls(deps.camera, deps.renderer.domElement); 
-  
+    this.physics = deps.physics;
     
+    this.body = this.physics.createPlayerPhysics(); // creates the player collider
+
     // setup event listeners
     this.controls.addEventListener('lock', () => { // called when mouse is captured
       this.isGamePaused = false;
@@ -60,13 +63,36 @@ export class Player {
 
   // setup player func
 
-  updateMovement() { 
+  updateMovement(deltaTime) { 
+    const direction = new THREE.Vector3();
     if (!this.isGamePaused) {
-      if (this.keys.z) this.controls.moveForward(this.moveSpeed);
-      if (this.keys.s) this.controls.moveForward(-this.moveSpeed);
-      if (this.keys.q) this.controls.moveRight(-this.moveSpeed);
-      if (this.keys.d) this.controls.moveRight(this.moveSpeed);
-    }
+
+
+      if (this.keys.z) direction.z -= 1;
+      if (this.keys.s) direction.z += 1;
+      if (this.keys.q) direction.x -= 1;
+      if (this.keys.d) direction.x += 1;
+    
+    
+    direction.normalize();
+
+
+    const euler = new THREE.Euler(0,this.controls.getObject().rotation.y,0,'YXZ');
+    direction.applyEuler(euler);
+    direction.multiplyScalar(this.moveSpeed);
+
+    const pos = this.body.translation();
+    const next = {
+      x: pos.x + direction.x,
+      y: pos.y,
+      z: pos.z + direction.z
+    };
+
+    this.body.setLinvel( direction.x / deltaTime, 0, direction.z / deltaTime, true);
+
+    this.controls.getObject().position.set(next.x, next.y, next.z);
+   }
+
   }
 
 
